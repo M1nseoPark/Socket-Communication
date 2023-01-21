@@ -40,20 +40,21 @@ int main(int argc, char* argv[]) {
         error_handling("listen() error");
 
     clnt_adr_sz = sizeof(clnt_adr);
-
+    
+    // 5개의 클라이언트 연결 요청을 수용 
     for (i = 0; i < 5; i++) {
         opnd_cnt = 0;
         clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
-        read(clnt_sock, &opnd_cnt, 1);
+        read(clnt_sock, &opnd_cnt, 1);   // 피연산자의 개수 정보 수신 
 
         recv_len = 0;
-        while ((opnd_cnt * OPSZ+1) > recv_len) {
+        while ((opnd_cnt * OPSZ+1) > recv_len) {   // 개수 정보를 바탕으로 피연산자 정보 수신 
             recv_cnt = read(clnt_sock, &opinfo[recv_len], BUF_SIZE-1);
             recv_len += recv_cnt;
         }
 
         result = calculate(opnd_cnt, (int*)opinfo, opinfo[recv_len-1]);
-        write(clnt_sock, (char*)&result, sizeof(result));
+        write(clnt_sock, (char*)&result, sizeof(result));   // calculate 함수가 반환한 연산 결과를 클라이언트에게 전송 
         close(clnt_sock);
     }
 
